@@ -11,10 +11,10 @@ export default function Home(){
  const searchRequest=useRef<AbortController|null>(null);
  useEffect(()=>()=>searchRequest.current?.abort(),[]);
  function resetSearch(){searchRequest.current?.abort();setSearching(false);setSearchError('');setSearchSummary('');setResults(doctors);setSpecialty('All specialties');setQuery('')}
- async function search(e?:React.FormEvent,allSpecialties=false){
+ async function search(e?:React.FormEvent,allSpecialties=false,suggestedQuery?:string){
   e?.preventDefault();searchRequest.current?.abort();
   const controller=new AbortController();searchRequest.current=controller;
-  const term=query.trim();const filter=allSpecialties?'All specialties':specialty;
+  const term=(suggestedQuery??query).trim();if(suggestedQuery!==undefined)setQuery(suggestedQuery);const filter=allSpecialties?'All specialties':specialty;
   if(allSpecialties)setSpecialty('All specialties');
   setSearchError('');setSearching(true);setSearchSummary('Searching for your care…');
   try{
@@ -30,12 +30,21 @@ export default function Home(){
  const services=[{name:'Primary care',icon:Stethoscope,text:'Your everyday health, in expert hands.'},{name:'Cardiology',icon:HeartPulse,text:'Wholehearted care for a healthier you.'},{name:'Mental wellness',icon:Brain,text:'A safe space for your peace of mind.'},{name:'Dermatology',icon:Sparkles,text:'Feel confident in the skin you’re in.'}];
  return <><div className="announcement">A healthier tomorrow starts with a little care today. <a href="#services">Explore our care <ArrowUpRight size={13}/></a></div><header><a href="#" className="brand"><span className="brand-icon"><Plus strokeWidth={3}/></span>vitalis<span className="brand-health">health</span></a><nav className={menu?'mobile-open':''}><a href="#services" onClick={()=>setMenu(false)}>Our care</a><a href="#doctors" onClick={()=>setMenu(false)}>Find a doctor</a><a href="#approach" onClick={()=>setMenu(false)}>Why Vitalis</a><a href="#faq" onClick={()=>setMenu(false)}>Resources</a></nav><button className="button small nav-book" onClick={()=>setSelected(doctors[0])}>Book an appointment <ArrowUpRight size={16}/></button><button className="menu-button" aria-label="Toggle navigation" onClick={()=>setMenu(!menu)}>{menu?<X/>:<Menu/>}</button></header>
  <main><section className="site-search" aria-label="Search for healthcare">
-  <div className="site-search-heading"><Search size={21}/><label htmlFor="site-search-input">Find the care you need</label></div>
+  <div className="site-search-heading">
+   <span className="search-heading-icon"><Sparkles size={20} strokeWidth={1.6}/></span>
+   <div><span className="search-eyebrow">YOUR NEXT STEP TO FEELING BETTER</span><label htmlFor="site-search-input">Great care starts with a search.</label></div>
+   <span className="search-top-note"><Heart size={13}/> Care, centered on you</span>
+  </div>
   <form role="search" aria-label="Search doctors and specialties" onSubmit={e=>search(e,true)}>
-   <div className="site-search-field"><input id="site-search-input" type="search" placeholder="Search doctors or specialties…" value={query} maxLength={100} onChange={e=>setQuery(e.target.value)}/>{query&&<button type="button" className="clear-search" aria-label="Clear search and show all doctors" onClick={resetSearch}><X size={16}/></button>}</div>
-   <button type="submit" className="button" disabled={searching}>{searching?'Searching…':'Search'}<Search size={17}/></button>
+   <div className="site-search-field">
+    <Search className="search-input-icon" size={23} strokeWidth={1.7}/>
+    <div className="search-input-wrap"><span className="search-field-caption" aria-hidden="true">DOCTOR, SPECIALTY, OR KEYWORD</span><input id="site-search-input" type="search" placeholder="Search doctors or specialties…" value={query} maxLength={100} onChange={e=>setQuery(e.target.value)}/></div>
+    {query&&<button type="button" className="clear-search" aria-label="Clear search and show all doctors" onClick={resetSearch}><X size={17}/></button>}
+   </div>
+   <button type="submit" className="button search-submit" disabled={searching}><span>{searching?'Finding your care…':'Find my care'}</span><span className="search-submit-icon">{searching?<span className="search-spinner" aria-hidden="true"/>:<ArrowUpRight size={20}/>}</span></button>
   </form>
-  <div className="site-search-feedback" aria-live="polite">{searchError||searchSummary||'Find your specialist by name or explore care like cardiology and dermatology.'}</div>
+  <div className="search-discovery"><span className="search-popular-label">Try a specialty</span><div className="search-chips">{services.map(service=><button key={service.name} type="button" onClick={()=>search(undefined,true,service.name)} disabled={searching}><service.icon size={13} strokeWidth={1.7}/>{service.name}<ArrowUpRight className="chip-arrow" size={12}/></button>)}</div></div>
+  <div className={`site-search-feedback${searchError?' search-has-error':''}`} aria-live="polite">{searchError||searchSummary||'A name you know. A specialist you need. We’ll help you find your fit.'}</div>
  </section><section className="hero"><div className="hero-copy"><div className="eyebrow"><span className="dot"/> GOOD HEALTH. GREAT CARE.</div><h1>Healthcare that<br/>feels a little<br/><em>more human.</em></h1><p>Expert care. Real connection. A healthier you.<br/>Discover healthcare built around your life,<br className="desktop-break"/> not the other way around.</p><div className="hero-buttons"><button className="button" onClick={()=>setSelected(doctors[0])}>Find your care <ArrowUpRight size={18}/></button><a className="text-button" href="#approach">Meet Vitalis <span className="round-arrow"><ArrowRight size={16}/></span></a></div><div className="social-proof"><div className="avatars">{doctors.slice(0,3).map(d=><img key={d.id} src={photo(d.image,90)} alt=""/>)}</div><div><div className="stars">★★★★★ <strong>4.9<span>/5</span></strong></div><small>A little care makes a big difference</small></div></div></div><div className="hero-visual"><img className="hero-image" src={photo('photo-1576091160399-112ba8d25d1d',1200)} alt="Doctor listening thoughtfully to a patient during a consultation" fetchPriority="high"/><div className="image-tint"/><div className="visual-label"><span className="dot"/> HERE FOR YOU. ALWAYS.</div><div className="care-card"><span className="care-icon"><HeartPulse size={27}/></span><div><strong>Good care starts<br/>with listening.</strong><span>People first. Every single time.</span></div><span className="care-check"><Check size={13}/></span></div><div className="image-caption"><span>Care that sees the whole you.</span><ArrowUpRight size={25}/></div></div></section>
  <section className="finder" aria-label="Find care"><div className="finder-title"><Search size={23}/><div><h2>Your better health starts here.</h2><p>Let’s find the right care for you.</p></div></div><form onSubmit={e=>search(e)}><label><span>SPECIALTY</span><select value={specialty} onChange={e=>setSpecialty(e.target.value)}><option>All specialties</option>{services.map(s=><option key={s.name}>{s.name}</option>)}</select></label><label><span>DOCTOR OR KEYWORD</span><input placeholder="Who are you looking for?" value={query} onChange={e=>setQuery(e.target.value)}/></label><button className="button" type="submit" disabled={searching}>{searching?'Searching…':'Find a doctor'} <Search size={17}/></button></form>{searchError&&<p role="alert">{searchError}</p>}</section>
  <div className="trust-row"><span>Thoughtful care, every step of the way</span><div><ShieldCheck/> Vetted specialists</div><div><Video/> In-person & virtual</div><div><CalendarDays/> Easy online booking</div><div><Heart/> Personalized to you</div></div>
