@@ -1,4 +1,6 @@
-# Vitalis Health
+# vitalis-health
+
+## Vitalis Health
 
 A responsive, editorial healthcare website with a real booking backend. Built with Next.js 16, React 19, TypeScript, Zod, Lucide, and Node 24's embedded SQLite driver. Versions are locked in package-lock.json.
 
